@@ -31,7 +31,10 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     markdown
+     (markdown :variables
+               markdown-live-preview-engine 'vmd
+               markdown-command "/usr/bin/multimarkdown"
+               )
      html
      python
      ;; ----------------------------------------------------------------
@@ -43,16 +46,18 @@ values."
      auto-completion
      ;; better-defaults
      emacs-lisp
-     git
-     ;; markdown
+     ;; git
      ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom
+            shell-default-term-shell "/bin/zsh"
+            )
      ;; spell-checking
      syntax-checking
      ;; version-control
      c-c++
+     twitter
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -60,7 +65,7 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(
-     ddskk
+     mozc
     )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -318,8 +323,35 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (global-set-key (kbd "C-h") 'delete-backward-char)
   (global-set-key (kbd "<F1>") help-map)
-  (global-set-key (kbd "C-x j") 'skk-auto-fill-mode)
-  (setq default-input-method "japanese-skk")
+  ;; (global-set-key (kbd "C-x j") 'skk-auto-fill-mode)
+  ;; (setq default-input-method "japanese-skk")
+  ;; Mozc settings
+  (global-set-key (kbd "M-SPC") 'toggle-input-method)
+  (set-language-environment "Japanese")
+  (setq default-input-method "japanese-mozc")
+  (setq mozc-candidate-style 'echo-area)
+
+  (defun mozc-start()
+    (interactive)
+    (set-cursor-color "blue")
+    (message "Mozc start")
+    (mozc-mode 1)
+    )
+
+  (defun mozc-end()
+    (interactive)
+    (set-cursor-color "gray")
+    (message "Mozc end")
+    (mozc-mode -1)
+    )
+
+  (bind-keys :map mozc-mode-map
+             ("M-SPC" . mozc-end)
+             ("C-g" . mozc-end)
+             ("C-x h" . mark-whole-buffer)
+             ("C-x C-s" . save-buffer)
+             )
+
   (global-set-key (kbd "C-j") 'evil-force-normal-state)
   (defun copy-to-clipboard ()
   "Copies selection to x-clipboard."
@@ -363,7 +395,8 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (mmm-mode markdown-toc markdown-mode gh-md web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data ddskk disaster company-c-headers cmake-mode clang-format orgit magit-gitflow helm-company flycheck-pos-tip pos-tip evil-magit magit magit-popup git-commit ghub treepy let-alist graphql company-statistics company-anaconda ac-ispell smeargle helm-gitignore helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link fuzzy flycheck with-editor company auto-yasnippet yasnippet auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help twittering-mode mu4e-maildirs-extension mu4e-alert ht alert log4e gntp mozc vmd-mode mmm-mode markdown-toc markdown-mode gh-md web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data ddskk disaster company-c-headers cmake-mode clang-format orgit magit-gitflow helm-company flycheck-pos-tip pos-tip evil-magit magit magit-popup git-commit ghub treepy let-alist graphql company-statistics company-anaconda ac-ispell smeargle helm-gitignore helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link fuzzy flycheck with-editor company auto-yasnippet yasnippet auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+ '(send-mail-function (quote mailclient-send-it)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
