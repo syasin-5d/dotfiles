@@ -192,4 +192,18 @@ zle -N ghq-fzf
 bindkey "^]" ghq-fzf
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
-PATH=/Users/syasin/.zplug/repos/zplug/zplug/bin:/Users/syasin/.zplug/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Applications/Wireshark.app/Contents/MacOS:/Users/syasin/go/bin:/Users/syasin/anaconda3/bin/:/Users/syasin/anaconda3/bin/
+
+function set_kgproxy() {
+	export http_proxy=http://proxy.ksc.kwansei.ac.jp:8080
+	export https_proxy=$http_proxy
+	export all_proxy=$all_proxy
+}
+function unset_kgproxy() {
+	unset http_proxy
+	unset https_proxy
+	unset all_proxy
+}
+export PATH=$PATH:/home/syasin/.gem/ruby/2.5.0/bin
+export PATH=$PATH:/home/syasin/.yarn/bin
+export PATH=$PATH:/home/syasin/node_modules/.bin
+export EDITOR=vim

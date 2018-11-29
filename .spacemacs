@@ -325,6 +325,7 @@ you should place your code here."
   (global-set-key (kbd "<F1>") help-map)
   ;; (global-set-key (kbd "C-x j") 'skk-auto-fill-mode)
   ;; (setq default-input-method "japanese-skk")
+  (set-default-coding-systems 'utf-8)
   ;; Mozc settings
   (global-set-key (kbd "M-SPC") 'toggle-input-method)
   (set-language-environment "Japanese")
