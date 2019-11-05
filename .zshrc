@@ -203,7 +203,34 @@ function unset_kgproxy() {
 	unset https_proxy
 	unset all_proxy
 }
-export PATH=$PATH:/home/syasin/.gem/ruby/2.5.0/bin
-export PATH=$PATH:/home/syasin/.yarn/bin
-export PATH=$PATH:/home/syasin/node_modules/.bin
+
+export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
+export PATH=$PATH:$HOME/.yarn/bin
+export PATH=$PATH:$HOME/node_modules/.bin
 export EDITOR=vim
+alias emacs='emacs -nw'
+alias en='emacsclient -n'
+alias bd='cd ../'
+
+autoload -Uz bashcompinit
+bashcompinit
+source $HOME/dotfiles/wp-completion.bash
+
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export TEXINPUTS=.:/usr/local/lib/inputs//:/usr/share/texlive/texmf-dist//:/etc/texmf//:~/fserv/home/ohsaki/inputs//
+export BIBINPUTS=$BIBINPUTS:~/fserv/home/ohsaki/bib//
+
+alias rawemacs="/usr/bin/emacs -q -l ~/.emacs.old"
+
+alias sync_meeting="rsync -av fserv:/share/meeting/ $HOME/fserv/meeting"
+alias grep="grep --color"
+export PATH=$PATH:/usr/local/go/bin
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
+eval "$(goenv init -)"
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
+export XDG_CONFIG_HOME=$HOME/.config
+export PYTHONPATH="/usr/local/lib/python3/"
