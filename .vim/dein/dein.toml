@@ -1,0 +1,30 @@
+[[plugins]]
+repo = 'shougo/denite.nvim'
+[[plugins]]
+repo = 'scrooloose/nerdtree'
+[[plugins]]
+repo = 'Xuyuanp/nerdtree-git-plugin'
+[[plugins]]
+repo = 'tomasr/molokai'
+[[plugins]]
+repo = 'tpope/vim-fugitive'
+[[plugins]]
+repo = 'thinca/vim-visualstar'
+[[plugins]]
+repo = 'kien/ctrlp.vim'
+[[plugins]]
+repo = 'mattn/emmet-vim'
+[[plugins]]
+repo = 'Shougo/neocomplete.vim'
+[[plugins]]
+repo = 'Shougo/neosnippet.vim'
+[[plugins]]
+repo = 'tomtom/tcomment_vim'
+[[plugins]]
+repo = 'tpope/vim-surround'
+[[plugins]]
+repo = 't9md/vim-textmanip'
+[[plugins]]
+repo = 'scrooloose/syntastic'
+[[plugins]]
+repo = 'itchyny/lightline.vim'
