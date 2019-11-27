@@ -31,42 +31,35 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     (markdown :variables
-               markdown-live-preview-engine 'vmd
-               markdown-command "/usr/bin/multimarkdown"
-               )
-     html
-     python
+     vimscript
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+     html
+     (python :variables
+             python-enable-yapf-format-on-save t
+             python-sort-imports-on-save t)
+
      helm
-     auto-completion
-     ;; better-defaults
+     ;; auto-completion
      emacs-lisp
-     ;; git
-     ;; org
-     (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom
-            shell-default-term-shell "/bin/zsh"
-            )
-     ;; spell-checking
+     markdown
+     org
      syntax-checking
-     ;; version-control
-     c-c++
-     twitter
+     (c-c++ :variables c-c++-enable-clang-support t)
+     ;; pdf-tools
+     spell-checking
+     git
+     themes-megapack
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages
-   '(
-     mozc
-    )
+   dotspacemacs-additional-packages '(
+                                      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -95,7 +88,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https nil 
+   dotspacemacs-elpa-https nil
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -138,17 +131,20 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(grandshell
+                         spacemacs-dark
+                         molokai
+                         alect-black-alt
+                         )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+                               :size 14
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1)
+                               :powerline-scale 1.0)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
@@ -271,8 +267,8 @@ values."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers t
-   ;; Code folding nethod. Possible values are `evil' and `origami'.
+   dotspacemacs-line-numbers 't
+   ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
@@ -303,6 +299,7 @@ values."
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
+   package-check-signature nil
    ))
 
 (defun dotspacemacs/user-init ()
@@ -312,79 +309,73 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+  (set-proxy)
+  (setq eyebrowse-keymap-prefix (kbd "C-c w"))
   )
 
-( defun dotspacemacs/user-config ()
+(defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
 layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  (global-set-key (kbd "C-h") 'delete-backward-char)
-  (global-set-key (kbd "<F1>") help-map)
-  ;; (global-set-key (kbd "C-x j") 'skk-auto-fill-mode)
-  ;; (setq default-input-method "japanese-skk")
-  (set-default-coding-systems 'utf-8)
-  ;; Mozc settings
-  (global-set-key (kbd "M-SPC") 'toggle-input-method)
-  (set-language-environment "Japanese")
-  (setq default-input-method "japanese-mozc")
-  (setq mozc-candidate-style 'echo-area)
+  (add-to-list 'load-path "~/.emacs.d/elisp")
+  ;; swap BS and DEL
+  (keyboard-translate ?\C-h ?\C-?)
+  ;; set encoding utf-8
+  (set-language-environment "UTF-8")
+  ;; C-/ to skk-undo-kakutei
+  (define-key global-map "\C-c/" 'skk-undo-kakutei)
+  ;; Bind clang-format-region to C-M-tab in all modes:
+  (global-set-key [C-M-tab] 'clang-format-region)
+  ;; Bind clang-format-buffer to tab on the c++-mode only:
+  (add-hook 'c++-mode-hook 'clang-format-bindings)
+  (defun clang-format-bindings ()
+    (define-key c++-mode-map [tab] 'clang-format-buffer))
+  ;; doc-annotate
+  (setq doc-view-scale-internally nil)
+  (add-hook 'doc-view-mode-hook
+    	  '(lambda ()
+  	     (local-set-key "c" 'doc-annotate-add-annotation)
+  	     (local-set-key [mouse-1] 'doc-annotate-add-annotation)))
+  (autoload 'doc-annotate-mode "doc-annotate")
+  (autoload 'doc-annotate-add-annotation "doc-annotate")
+  (add-to-list 'auto-mode-alist '("\\.ant$" . doc-annotate-mode))
+  ;; (setq yas-snippet-dirs
+  ;;       '("~/.emacs.d/snippets"
+  ;;         "~/.emacs.d/elpa/yasnippet-snippets-20190513.1049/snippets/"
+  ;;         ))
+  ;; (yas-global-mode 1)
 
-  (defun mozc-start()
+  ;; rsync.el
+  (autoload 'rsync "rsync" nil t)
+  (global-set-key "\C-cR" 'rsync)
+  ;; (global-set-key "\C-BP" 'insert-rsync-path)
+  ;; escape
+  (global-set-key (kbd "C-;") 'evil-escape)
+  ;; comment
+  (global-set-key "\C-cD" 'insert-modification-notice)
+  (defun insert-modification-notice ()
+    "Insert today's date followed by your full name at the current point
+  as a comment."
     (interactive)
-    (set-cursor-color "blue")
-    (message "Mozc start")
-    (mozc-mode 1)
-    )
+    (cond ((or (eq major-mode 'latex-mode)
+               (eq major-mode 'outline-mode))
+           (save-excursion
+             (insert (format "%%  -%s [" (user-login-name))
+                     (format-time-string "%Y/%m/%d")
+                     "]\n"))
+           (forward-char 2))
+          (t
+           (insert (format "%s%s, %s by %s%s" 
+                           (comment-start-with-space)
+                           (substring (current-time-string) 4 10)
+                           (substring (current-time-string) -4)
+                           (user-full-name)
+                           (or comment-end "")))
+           (indent-according-to-mode))))
 
-  (defun mozc-end()
-    (interactive)
-    (set-cursor-color "gray")
-    (message "Mozc end")
-    (mozc-mode -1)
-    )
-
-  (bind-keys :map mozc-mode-map
-             ("M-SPC" . mozc-end)
-             ("C-g" . mozc-end)
-             ("C-x h" . mark-whole-buffer)
-             ("C-x C-s" . save-buffer)
-             )
-
-  (global-set-key (kbd "C-j") 'evil-force-normal-state)
-  (defun copy-to-clipboard ()
-  "Copies selection to x-clipboard."
-  (interactive)
-  (if (display-graphic-p)
-      (progn
-        (message "Yanked region to x-clipboard!")
-        (call-interactively 'clipboard-kill-ring-save)
-        )
-    (if (region-active-p)
-        (progn
-          (shell-command-on-region (region-beginning) (region-end) "xsel 
---clipboard --input")
-          (message "Yanked region to clipboard!")
-          (deactivate-mark))
-      (message "No region active; can't yank to clipboard!")))
-  )
-
-(defun paste-from-clipboard ()
-  "Pastes from x-clipboard."
-  (interactive)
-  (if (display-graphic-p)
-      (progn
-        (clipboard-yank)
-        (message "graphics active")
-        )
-    (insert (shell-command-to-string "xsel --clipboard --output"))
-    )
-  )
-(evil-leader/set-key "o y" 'copy-to-clipboard)
-(evil-leader/set-key "o p" 'paste-from-clipboard)
-(setq skk-jisyo "~/.emacs.d/dic/SKK-JISYO.L")
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -394,13 +385,49 @@ you should place your code here."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(evil-want-Y-yank-to-eol nil)
+ '(helm-completion-style (quote emacs))
+ '(helm-frame-background-color nil)
  '(package-selected-packages
    (quote
-    (xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help twittering-mode mu4e-maildirs-extension mu4e-alert ht alert log4e gntp mozc vmd-mode mmm-mode markdown-toc markdown-mode gh-md web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data ddskk disaster company-c-headers cmake-mode clang-format orgit magit-gitflow helm-company flycheck-pos-tip pos-tip evil-magit magit magit-popup git-commit ghub treepy let-alist graphql company-statistics company-anaconda ac-ispell smeargle helm-gitignore helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link fuzzy flycheck with-editor company auto-yasnippet yasnippet auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (zenburn-theme zen-and-art-theme white-sand-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme farmhouse-theme exotica-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme spacemacs-theme elscreen vimrc-mode dactyl-mode orgit magit-gitflow magit-popup git-timemachine evil-magit magit git-commit helm-gitignore smeargle gitignore-mode gitconfig-mode gitattributes-mode transient git-messenger git-link with-editor flyspell-correct-helm yasnippet-snippets pdf-tools tablist disaster company-c-headers cmake-mode clang-format helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag ace-jump-helm-line helm helm-core web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode haml-mode emmet-mode company-web web-completion-data org2blog org-projectile org-pomodoro alert log4e markdown-toc flyspell-correct-ivy flycheck-pos-tip pos-tip company-statistics company-anaconda auto-yasnippet ac-ispell org-category-capture org-present gntp org-mime org-download mmm-mode markdown-mode htmlize gnuplot gh-md fuzzy flyspell-correct flycheck company yasnippet auto-dictionary auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional cython-mode anaconda-mode pythonic ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-make google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump popup f dash s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed async aggressive-indent adaptive-wrap ace-window ace-link avy)))
+ '(pdf-view-incompatible-modes
+   (quote
+    (linum-mode linum-relative-mode helm-linum-relative-mode nlinum-mode nlinum-hl-mode nlinum-relative-mode yalinum-mode)))
  '(send-mail-function (quote mailclient-send-it)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:background nil)))))
+
+
+(defun set-proxy ()
+  (when (getenv "http_proxy")
+    (cl-flet (
+           ;; get user:passwd entry from http_proxy environment var and base64-encode it.
+           (get-passwd-encode-string ()
+             (let* ((ev (getenv "http_proxy"))
+                    (x (decode-coding-string (url-unhex-string ev) 'utf-8))
+                    )
+               (if (not (equal x ""))
+                   (base64-encode-string
+                    (substring x (+ 2 (string-match "//" x)) (string-match "@" x))
+                    )
+                 nil)))
+           (get-proxy-url-string ()
+             (let* ((ev (getenv "http_proxy"))
+                    (x (decode-coding-string (url-unhex-string ev) 'utf-8))
+                    )
+               (if (not (equal x ""))
+                   (substring x (+ 1 (string-match "@" x)))
+               ""))) )
+    ;; proxy service var
+    (setq url-proxy-services `(("no_proxy" . "^\\(localhost \\| 10.*\\)")
+                               ("http"  . ,(get-proxy-url-string))
+                               ("https" . ,(get-proxy-url-string))
+                               ))
+    )))
