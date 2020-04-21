@@ -28,3 +28,7 @@ repo = 't9md/vim-textmanip'
 repo = 'scrooloose/syntastic'
 [[plugins]]
 repo = 'itchyny/lightline.vim'
+[[plugins]]
+repo = 'jceb/vim-orgmode'
+[[plugins]]
+repo = 'tpope/vim-speeddating'
