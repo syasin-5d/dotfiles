@@ -225,6 +225,7 @@ export BIBINPUTS=$BIBINPUTS:~/fserv/home/ohsaki/bib//
 alias rawemacs="/usr/bin/emacs -q -l ~/.emacs.old"
 
 alias sync_meeting="rsync -av fserv:/share/meeting/ $HOME/fserv/meeting"
+alias sync_seminar="rsync -av fserv:/share/seminar/ $HOME/fserv/seminar"
 alias grep="grep --color"
 export PATH=$PATH:/usr/local/go/bin
 export GOENV_ROOT="$HOME/.goenv"
@@ -234,3 +235,22 @@ export PATH="$GOROOT/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
 export XDG_CONFIG_HOME=$HOME/.config
 export PYTHONPATH="/usr/local/lib/python3/"
+export PATH="$PATH:$HOME/.local/bin"
+alias mutt="mutt -f ~/Mail/"
+alias me2p='gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=out.pdf -sEPSCrop *.eps'
+
+
+
+n pdfmin()
+{
+    local cnt=0
+    for i in $@; do
+        gs -sDEVICE=pdfwrite \
+           -dCompatibilityLevel=1.4 \
+           -dPDFSETTINGS=/ebook \
+           -dNOPAUSE -dQUIET -dBATCH \
+           -sOutputFile=${i%%.*}.min.pdf ${i} &
+        (( (cnt += 1) % 4 == 0 )) && wait
+    done
+    wait && return 0
+}
