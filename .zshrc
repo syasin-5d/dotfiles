@@ -193,17 +193,6 @@ bindkey "^]" ghq-fzf
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
-function set_kgproxy() {
-	export http_proxy=http://proxy.ksc.kwansei.ac.jp:8080
-	export https_proxy=$http_proxy
-	export all_proxy=$all_proxy
-}
-function unset_kgproxy() {
-	unset http_proxy
-	unset https_proxy
-	unset all_proxy
-}
-
 export PATH=$PATH:$HOME/.gem/ruby/2.5.0/bin
 export PATH=$PATH:$HOME/.yarn/bin
 export PATH=$PATH:$HOME/node_modules/.bin
@@ -254,3 +243,7 @@ n pdfmin()
     done
     wait && return 0
 }
+
+for i in ~/.zsh/*.zsh; do
+    source $i
+done

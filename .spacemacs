@@ -31,6 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     javascript
      vimscript
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -43,22 +44,20 @@ values."
              python-sort-imports-on-save t)
 
      helm
-     ;; auto-completion
+     auto-completion
      emacs-lisp
      markdown
      org
      syntax-checking
      (c-c++ :variables c-c++-enable-clang-support t)
-     ;; pdf-tools
      spell-checking
      git
      themes-megapack
      )
-   ;; List of additional packages that will be installed without being
-   ;; wrapped in a layer. If you need some configuration for these
-   ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
+					ddskk
+          nlinum
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -90,7 +89,7 @@ values."
    ;; (default t)
    dotspacemacs-elpa-https nil
    ;; Maximum allowed time in seconds to contact an ELPA repository.
-   dotspacemacs-elpa-timeout 5
+   dotspacemacs-elpa-timeout 30
    ;; If non nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
@@ -141,7 +140,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 14
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -309,8 +308,11 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-  (set-proxy)
   (setq eyebrowse-keymap-prefix (kbd "C-c w"))
+  (global-set-key (kbd "C-x j") 'skk-mode)
+  (setq skk-large-jisyo "/usr/share/skk/SKK-JISYO.L")
+  (if (>= emacs-major-version 23)
+      (setq mew-thread-indent-strings ["+" "+" "|" " "]))
   )
 
 (defun dotspacemacs/user-config ()
@@ -352,8 +354,6 @@ you should place your code here."
   (autoload 'rsync "rsync" nil t)
   (global-set-key "\C-cR" 'rsync)
   ;; (global-set-key "\C-BP" 'insert-rsync-path)
-  ;; escape
-  (global-set-key (kbd "C-;") 'evil-escape)
   ;; comment
   (global-set-key "\C-cD" 'insert-modification-notice)
   (defun insert-modification-notice ()
@@ -376,6 +376,16 @@ you should place your code here."
                            (or comment-end "")))
            (indent-according-to-mode))))
 
+  ;; nlinum-mode
+  (global-nlinum-mode t)
+  (setq nlinum-format "%4d ")
+
+  ;; electric-pair-mode
+  (electric-pair-mode t)
+  ;; edit-with-emacs
+  (require 'edit-server)
+  (edit-server-start)
+  (setq edit-server-new-frame nil)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -392,7 +402,7 @@ you should place your code here."
  '(helm-frame-background-color nil)
  '(package-selected-packages
    (quote
-    (ht zenburn-theme zen-and-art-theme white-sand-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme farmhouse-theme exotica-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme spacemacs-theme elscreen vimrc-mode dactyl-mode orgit magit-gitflow magit-popup git-timemachine evil-magit magit git-commit helm-gitignore smeargle gitignore-mode gitconfig-mode gitattributes-mode transient git-messenger git-link with-editor flyspell-correct-helm yasnippet-snippets pdf-tools tablist disaster company-c-headers cmake-mode clang-format helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag ace-jump-helm-line helm helm-core web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode haml-mode emmet-mode company-web web-completion-data org2blog org-projectile org-pomodoro alert log4e markdown-toc flyspell-correct-ivy flycheck-pos-tip pos-tip company-statistics company-anaconda auto-yasnippet ac-ispell org-category-capture org-present gntp org-mime org-download mmm-mode markdown-mode htmlize gnuplot gh-md fuzzy flyspell-correct flycheck company yasnippet auto-dictionary auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional cython-mode anaconda-mode pythonic ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-make google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump popup f dash s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed async aggressive-indent adaptive-wrap ace-window ace-link avy)))
+    (mew nlinum web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc coffee-mode ddskk cdb ccc ht zenburn-theme zen-and-art-theme white-sand-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme farmhouse-theme exotica-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme spacemacs-theme elscreen vimrc-mode dactyl-mode orgit magit-gitflow magit-popup git-timemachine evil-magit magit git-commit helm-gitignore smeargle gitignore-mode gitconfig-mode gitattributes-mode transient git-messenger git-link with-editor flyspell-correct-helm yasnippet-snippets pdf-tools tablist disaster company-c-headers cmake-mode clang-format helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag ace-jump-helm-line helm helm-core web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode haml-mode emmet-mode company-web web-completion-data org2blog org-projectile org-pomodoro alert log4e markdown-toc flyspell-correct-ivy flycheck-pos-tip pos-tip company-statistics company-anaconda auto-yasnippet ac-ispell org-category-capture org-present gntp org-mime org-download mmm-mode markdown-mode htmlize gnuplot gh-md fuzzy flyspell-correct flycheck company yasnippet auto-dictionary auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional cython-mode anaconda-mode pythonic ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-make google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump popup f dash s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed async aggressive-indent adaptive-wrap ace-window ace-link avy)))
  '(pdf-view-incompatible-modes
    (quote
     (linum-mode linum-relative-mode helm-linum-relative-mode nlinum-mode nlinum-hl-mode nlinum-relative-mode yalinum-mode)))
@@ -404,30 +414,3 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(default ((t (:background nil)))))
 
-
-(defun set-proxy ()
-  (when (getenv "http_proxy")
-    (cl-flet (
-           ;; get user:passwd entry from http_proxy environment var and base64-encode it.
-           (get-passwd-encode-string ()
-             (let* ((ev (getenv "http_proxy"))
-                    (x (decode-coding-string (url-unhex-string ev) 'utf-8))
-                    )
-               (if (not (equal x ""))
-                   (base64-encode-string
-                    (substring x (+ 2 (string-match "//" x)) (string-match "@" x))
-                    )
-                 nil)))
-           (get-proxy-url-string ()
-             (let* ((ev (getenv "http_proxy"))
-                    (x (decode-coding-string (url-unhex-string ev) 'utf-8))
-                    )
-               (if (not (equal x ""))
-                   (substring x (+ 1 (string-match "@" x)))
-               ""))) )
-    ;; proxy service var
-    (setq url-proxy-services `(("no_proxy" . "^\\(localhost \\| 10.*\\)")
-                               ("http"  . ,(get-proxy-url-string))
-                               ("https" . ,(get-proxy-url-string))
-                               ))
-    )))
