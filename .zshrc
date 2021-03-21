@@ -1,11 +1,9 @@
 # 少し凝った zshrc
 # License : MIT
-# http://mollifier.mit-license.org/
-
+# http://mollifier.mit-license.org/ 
 ########################################
-# 環境変数
+# 環境変数 export LANG=ja_JP.UTF-8
 export LANG=ja_JP.UTF-8
-
 
 # 色を使用出来るようにする
 autoload -Uz colors
@@ -213,15 +211,26 @@ export BIBINPUTS=$BIBINPUTS:~/fserv/home/ohsaki/bib//
 
 alias rawemacs="/usr/bin/emacs -q -l ~/.emacs.old"
 
-alias sync_meeting="rsync -av fserv:/share/meeting/ $HOME/fserv/meeting"
-alias sync_seminar="rsync -av fserv:/share/seminar/ $HOME/fserv/seminar"
+alias sync_meeting="rsync -avpz --exclude .archive fserv:/share/meeting/ $HOME/fserv/meeting"
+alias sync_seminar="rsync --exclude .archive -avpz fserv:/share/seminar/ $HOME/fserv/seminar"
+alias sync_work="rsync --exclude .archive -av fserv:/share/work/ ~/fserv/work/"
 alias grep="grep --color"
-export PATH=$PATH:/usr/local/go/bin
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init -)"
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$GOPATH/bin:$PATH"
+# export PATH=$PATH:$HOME/.pyenv/bin
+# eval "$(pyenv init -)"
+# export PATH=$PATH:/usr/local/go/bin
+# export GOENV_ROOT="$HOME/.goenv"
+# export PATH="$GOENV_ROOT/bin:$PATH"
+# eval "$(goenv init -)"
+# export PATH="$GOROOT/bin:$PATH"
+# export PATH="$GOPATH/bin:$PATH"
+if [ -d $HOME/.anyenv ] ; then
+    export PATH="$HOME/.anyenv/bin:$PATH"
+    eval "$(anyenv init -)"
+    for D in `ls $HOME/.anyenv/envs`
+    do
+        export PATH="$HOME/.anyenv/envs/$D/shims:$PATH"
+    done
+fi
 export XDG_CONFIG_HOME=$HOME/.config
 export PYTHONPATH="/usr/local/lib/python3/"
 export PATH="$PATH:$HOME/.local/bin"
@@ -236,7 +245,7 @@ n pdfmin()
     for i in $@; do
         gs -sDEVICE=pdfwrite \
            -dCompatibilityLevel=1.4 \
-           -dPDFSETTINGS=/ebook \
+           -dPDFSETTINGS=/default \
            -dNOPAUSE -dQUIET -dBATCH \
            -sOutputFile=${i%%.*}.min.pdf ${i} &
         (( (cnt += 1) % 4 == 0 )) && wait
@@ -244,6 +253,28 @@ n pdfmin()
     wait && return 0
 }
 
-for i in ~/.zsh/*.zsh; do
-    source $i
-done
+alias xsel=win32yank.exe
+alias cbtrans="xsel -o | tex4paste | trans -brief"
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+xset r rate 140 40
+
+pid=`pidof ssh-agent`
+if [ -n "$pid" ]; then
+    export SSH_AGENT_PID=$pid
+    export SSH_AUTH_SOCK=`find /tmp -user syasin -type s -name 'agent.*' | tail -1`
+else
+    eval `ssh-agent -s`
+    eval `keychain --eval --agents ssh`
+    export SSH_ASKPASS=/usr/bin/ssh-askpass
+    keychain --nogui --quiet ~/.ssh/ed25519_fserv
+    unset SSH_ASKPASS
+fi
+
+export REDMINE_API_ACCESS_KEY=$(cat ~/.redmine/credentials)
+
+if [ "`ps -eo pid,lstart,cmd | grep systemd | grep -v -e grep -e systemd- | sort -n -k2 | awk 'NR==1 { print $1 }'`" != "1" ]; then
+  genie -s
+fi
+
+export XDG_CONFIG_HOME="$HOME/.config"
+alias vim=nvim

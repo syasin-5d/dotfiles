@@ -19,7 +19,7 @@ nnoremap j gj
 nnoremap k gk
 
 set list
-set listchars=tab:\▸\-
+" set listchars=tab:\▸\-
 set expandtab
 set tabstop=4
 set shiftwidth=4
@@ -65,3 +65,6 @@ if dein#load_state('~/.cache/dein')
 endif
 
 filetype plugin indent on
+
+let g:deoplete#enable_at_startup = 1
+
