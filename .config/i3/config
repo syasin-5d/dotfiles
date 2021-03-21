@@ -190,9 +190,9 @@ bar {
 #
 exec --no-startup-id xset r rate 200 40
 exec --no-startup-id setxkbmap -option ctrl:nocaps
-exec --no-startup-id xrandr --output Virtual-1 --mode 1920x1080_60.00
-exec --no-startup-id alternating_layouts.py
-exec --no-startup-id ~/.fehbg
+# exec --no-startup-id xrandr --output Virtual-1 --mode 1920x1080_60.00
+# exec --no-startup-id alternating_layouts.py
+# exec --no-startup-id ~/.fehbg
 # exec --no-startup-id compton -cbm 0.75
 #### application shortcuts
 #
